@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Community Sentiment — EmailMonkey · Gainsight</title>
+<meta name="viewport" content="width=1280">
+<!--
+  Built against Gainsight Horizon Design System v3.1 tokens
+  (Noto Sans, Royal Blue 70 primary, Rich Gray neutral spine, card radius 12,
+   shadow-100, no emoji, no gradients).
+  Mixes verified analytics from the last 6 months (2025-11-20 → 2026-05-20)
+  with plausibly fabricated rows/series to round out the dashboard.
+  Icon substitutions: Lucide-style outline at 24×24, 1.5px stroke (flagged
+  per design-system guidance — exact Horizon icons not present in the kit).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============== Horizon tokens (inlined subset) ============== */
+:root{
+  --gs-royal-blue-10:#e6f0fd;--gs-royal-blue-20:#d2e4fb;--gs-royal-blue-50:#4386ec;
+  --gs-royal-blue-60:#034aa3;--gs-royal-blue-70:#0369e9;--gs-royal-blue-80:#024299;
+  --gs-rich-gray-10:#f5f7f9;--gs-rich-gray-20:#e6e9ec;--gs-rich-gray-30:#d5d9de;
+  --gs-rich-gray-40:#acb4bd;--gs-rich-gray-50:#7596b7;--gs-rich-gray-60:#5f6c7a;
+  --gs-rich-gray-70:#3c4a57;--gs-rich-gray-90:#19232f;
+  --gs-tart-red-10:#fdf2f1;--gs-tart-red-30:#fcbeb9;--gs-tart-red-50:#f75d4f;--gs-tart-red-70:#dc3626;
+  --gs-fresh-green-10:#e6f5ee;--gs-fresh-green-30:#98e7b1;--gs-fresh-green-60:#119460;--gs-fresh-green-70:#0f794e;
+  --gs-honey-yellow-10:#fff8e0;--gs-honey-yellow-30:#ffecb8;--gs-honey-yellow-70:#ffbb00;--gs-honey-yellow-80:#da7309;
+  --gs-pacific-blue-10:#d3ecfa;--gs-pacific-blue-50:#1e9cdf;--gs-pacific-blue-70:#136a99;
+  --gs-jet-gray-30:#c7ccd3;--gs-jet-gray-60:#6b7886;--gs-jet-gray-80:#34383a;
+  --gs-lavender-purple-30:#ceaeef;--gs-lavender-purple-70:#7140b3;
+  --gs-rose-pink-60:#e85a9e;--gs-pumpkin-orange-60:#ff7a30;--gs-sea-green-60:#3aa78a;
+  --gs-bronze-brown-60:#a07a3a;--gs-yellow-green-60:#93b346;
+  --gs-shadow-100:0 0 1px 0 rgba(25,35,47,.12), 0 1px 3px 0 rgba(25,35,47,.20);
+  --gs-shadow-200:0 0 1px 0 rgba(52,56,58,.20), 0 6px 12px 0 rgba(25,35,47,.06);
+  --font:'Noto Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--gs-rich-gray-10);font-family:var(--font);color:var(--gs-rich-gray-90);font-size:14px;line-height:1.5;height:100%}
+body{display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ============== Left rail (Jet Gray 80) ============== */
+.rail{width:64px;background:var(--gs-jet-gray-80);color:#cdd2d6;display:flex;flex-direction:column;align-items:center;padding:8px 0;flex-shrink:0}
+.rail .logo{width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
+.rail .nav{display:flex;flex-direction:column;gap:4px;width:100%;align-items:center;flex:1}
+.rail .item{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--gs-rich-gray-40);cursor:pointer;position:relative}
+.rail .item:hover{background:rgba(255,255,255,.06);color:#fff}
+.rail .item.active{background:var(--gs-royal-blue-70);color:#fff}
+.rail .item svg{stroke:currentColor}
+.rail .avatar{width:32px;height:32px;border-radius:50%;background:#5394e0;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;margin-top:8px}
+
+/* ============== Header ============== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.header{height:48px;background:#fff;border-bottom:1px solid var(--gs-rich-gray-20);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0}
+.crumbs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gs-rich-gray-60)}
+.crumbs a{color:var(--gs-rich-gray-60);text-decoration:none}
+.crumbs a:hover{color:var(--gs-royal-blue-70)}
+.crumbs .sep{color:var(--gs-rich-gray-40)}
+.crumbs .current{color:var(--gs-rich-gray-90);font-weight:600}
+.search{flex:1;max-width:520px;margin:0 auto;height:32px;background:var(--gs-rich-gray-10);border:1px solid transparent;border-radius:9999px;display:flex;align-items:center;padding:0 12px;gap:8px;color:var(--gs-rich-gray-50);font-size:13px}
+.search:focus-within{background:#fff;border-color:var(--gs-royal-blue-70)}
+.search input{flex:1;border:0;background:transparent;outline:none;font-family:inherit;font-size:13px;color:var(--gs-rich-gray-90)}
+.h-actions{display:flex;align-items:center;gap:8px;color:var(--gs-rich-gray-60)}
+.h-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;position:relative}
+.h-icon:hover{background:var(--gs-rich-gray-10);color:var(--gs-royal-blue-70)}
+.h-icon .badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--gs-tart-red-70);border:2px solid #fff}
+
+/* ============== Page ============== */
+.page{flex:1;overflow:auto;padding:24px 32px 56px}
+.page-title{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+.page-title h1{font-size:21px;font-weight:600;margin:0 0 2px;letter-spacing:-0.01em;color:var(--gs-rich-gray-90)}
+.page-title .sub{font-size:13px;color:var(--gs-rich-gray-60);margin:0}
+.page-title .actions{display:flex;gap:8px}
+.btn{font-family:inherit;font-size:13px;font-weight:600;padding:0 14px;height:32px;border-radius:6px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1}
+.btn.primary{background:var(--gs-royal-blue-70);color:#fff}
+.btn.primary:hover{background:var(--gs-royal-blue-80)}
+.btn.secondary{background:#fff;color:var(--gs-rich-gray-70);border-color:var(--gs-rich-gray-30)}
+.btn.secondary:hover{background:var(--gs-rich-gray-10);border-color:var(--gs-rich-gray-40)}
+
+/* tabs */
+.tabs{display:flex;gap:24px;border-bottom:1px solid var(--gs-rich-gray-20);margin-bottom:20px}
+.tab{font-size:13px;color:var(--gs-rich-gray-60);padding:8px 0;cursor:pointer;border-bottom:2px solid transparent;font-weight:500}
+.tab.active{color:var(--gs-royal-blue-70);border-color:var(--gs-royal-blue-70);font-weight:600}
+.tab:hover:not(.active){color:var(--gs-rich-gray-90)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:var(--gs-shadow-100);min-height:108px}
+.kpi .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gs-rich-gray-50);margin-bottom:8px}
+.kpi .val{font-size:28px;font-weight:600;color:var(--gs-rich-gray-90);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:12px;font-weight:600;margin-top:6px}
+.kpi .delta.up{color:var(--gs-fresh-green-70)}
+.kpi .delta.down{color:var(--gs-tart-red-70)}
+.kpi .delta.warn{color:var(--gs-honey-yellow-80)}
+.kpi .delta.neutral{color:var(--gs-rich-gray-60)}
+.kpi .hint{font-size:11px;color:var(--gs-rich-gray-50);margin-top:4px}
+
+/* secondary KPI strip (smaller) */
+.kpis-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.mini{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:var(--gs-shadow-100);display:flex;flex-direction:column;gap:2px}
+.mini .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gs-rich-gray-50)}
+.mini .val{font-size:18px;font-weight:600;color:var(--gs-rich-gray-90);font-variant-numeric:tabular-nums}
+.mini .delta{font-size:11px;font-weight:600}
+.mini .delta.up{color:var(--gs-fresh-green-70)}
+.mini .delta.down{color:var(--gs-tart-red-70)}
+.mini .delta.neutral{color:var(--gs-rich-gray-60)}
+
+/* layout */
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row.r-2-1{grid-template-columns:2fr 1fr}
+.row.r-1-1{grid-template-columns:1fr 1fr}
+.row.r-1-1-1{grid-template-columns:1fr 1fr 1fr}
+
+.card{background:#fff;border-radius:12px;box-shadow:var(--gs-shadow-100);min-width:0}
+.card-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gs-rich-gray-20);gap:12px}
+.card-head h3{font-size:14px;font-weight:600;margin:0;color:var(--gs-rich-gray-90)}
+.card-head .legend{display:flex;gap:14px;font-size:11px;color:var(--gs-rich-gray-60);flex-wrap:wrap}
+.card-head .legend span{display:inline-flex;align-items:center;gap:5px}
+.card-head .legend .sw{width:8px;height:8px;border-radius:2px;display:inline-block}
+.card-head .h-meta{font-size:11px;color:var(--gs-rich-gray-50);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+
+.chart{padding:18px;height:260px;position:relative}
+.chart svg{width:100%;height:100%;overflow:visible;font-family:var(--font)}
+.chart .axis{stroke:var(--gs-rich-gray-20);stroke-width:1}
+.chart .grid{stroke:var(--gs-rich-gray-20);stroke-dasharray:2 3}
+.chart .axis-label{font-size:10px;fill:var(--gs-rich-gray-50)}
+
+/* Sentiment distribution stacked bars */
+.dist-list{padding:12px 18px 18px}
+.dist-row{display:grid;grid-template-columns:140px 1fr 56px;align-items:center;gap:12px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--gs-rich-gray-10)}
+.dist-row:last-child{border-bottom:0}
+.dist-row .name{color:var(--gs-rich-gray-70);font-weight:500}
+.dist-row .num{font-weight:600;color:var(--gs-rich-gray-90);font-variant-numeric:tabular-nums;text-align:right}
+.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--gs-rich-gray-20)}
+.stack span{display:block}
+.s-pos{background:var(--gs-fresh-green-60)}
+.s-neu{background:var(--gs-rich-gray-30)}
+.s-neg{background:var(--gs-tart-red-50)}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gs-rich-gray-50);border-bottom:1px solid var(--gs-rich-gray-20);background:var(--gs-rich-gray-10)}
+.tbl tbody td{padding:12px 14px;border-bottom:1px solid var(--gs-rich-gray-10);color:var(--gs-rich-gray-70);vertical-align:middle}
+.tbl tbody tr:hover{background:var(--gs-rich-gray-10)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--gs-rich-gray-90)}
+.tbl td.t{color:var(--gs-rich-gray-90);font-weight:500;max-width:340px}
+.tbl td .meta{font-size:11px;color:var(--gs-rich-gray-50);margin-top:2px}
+
+/* author avatars */
+.av{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
+.user-cell{display:flex;align-items:center;gap:10px}
+.user-cell .nm{font-weight:600;color:var(--gs-rich-gray-90)}
+.user-cell .role{font-size:11px;color:var(--gs-rich-gray-50)}
+
+/* sentiment chip */
+.s-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;line-height:18px;font-variant-numeric:tabular-nums}
+.s-chip .dot{width:6px;height:6px;border-radius:50%}
+.s-chip.pos{background:var(--gs-fresh-green-10);color:var(--gs-fresh-green-70)}
+.s-chip.pos .dot{background:var(--gs-fresh-green-60)}
+.s-chip.neg{background:var(--gs-tart-red-10);color:var(--gs-tart-red-70)}
+.s-chip.neg .dot{background:var(--gs-tart-red-50)}
+.s-chip.neu{background:var(--gs-rich-gray-20);color:var(--gs-rich-gray-70)}
+.s-chip.neu .dot{background:var(--gs-rich-gray-50)}
+.s-chip.warn{background:var(--gs-honey-yellow-10);color:var(--gs-honey-yellow-80)}
+.s-chip.warn .dot{background:var(--gs-honey-yellow-80)}
+.s-chip.info{background:var(--gs-pacific-blue-10);color:var(--gs-pacific-blue-70)}
+.s-chip.info .dot{background:var(--gs-pacific-blue-50)}
+
+/* sentiment meter */
+.meter{position:relative;height:6px;width:120px;background:var(--gs-rich-gray-20);border-radius:3px;overflow:hidden}
+.meter .bar{position:absolute;top:0;bottom:0;border-radius:3px}
+.meter.pos .bar{left:50%;background:var(--gs-fresh-green-60)}
+.meter.neg .bar{right:50%;background:var(--gs-tart-red-50)}
+.meter .center{position:absolute;top:-1px;bottom:-1px;left:50%;width:1px;background:var(--gs-rich-gray-40)}
+
+/* alert / priority queue */
+.queue{padding:6px 0}
+.q-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:12px 18px;align-items:center;border-bottom:1px solid var(--gs-rich-gray-10);cursor:pointer}
+.q-item:last-child{border-bottom:0}
+.q-item:hover{background:var(--gs-rich-gray-10)}
+.q-item .q-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gs-tart-red-10);color:var(--gs-tart-red-70)}
+.q-item .q-icon.warn{background:var(--gs-honey-yellow-10);color:var(--gs-honey-yellow-80)}
+.q-item .q-body .t{font-size:13px;font-weight:600;color:var(--gs-rich-gray-90);margin-bottom:2px;line-height:1.35}
+.q-item .q-body .m{font-size:11px;color:var(--gs-rich-gray-50)}
+.q-item .q-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+
+/* footer card link */
+.card-foot{padding:10px 18px;border-top:1px solid var(--gs-rich-gray-20);text-align:right}
+.card-foot a{color:var(--gs-royal-blue-70);font-size:12px;text-decoration:none;font-weight:600}
+
+/* note banner */
+.note{background:var(--gs-pacific-blue-10);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gs-pacific-blue-70);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.note svg{flex-shrink:0}
+
+/* h7 micro label */
+.h7{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gs-rich-gray-50)}
+
+/* segmented control on charts */
+.seg{display:flex;background:var(--gs-rich-gray-10);border-radius:6px;padding:2px}
+.seg button{font-family:inherit;font-size:11px;font-weight:600;border:0;background:transparent;color:var(--gs-rich-gray-60);padding:4px 10px;border-radius:4px;cursor:pointer}
+.seg button.on{background:#fff;color:var(--gs-rich-gray-90);box-shadow:0 1px 1px rgba(25,35,47,.08)}
+
+/* responsive guard */
+@media (max-width:1180px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .kpis-mini{grid-template-columns:repeat(3,1fr)}
+  .row.r-2-1,.row.r-1-1,.row.r-1-1-1{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+  <!-- LEFT RAIL -->
+  <aside class="rail">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#5C6770" fill-rule="evenodd" d="M17.73 13.824v3.618C16.548 18.326 14.899 18.906 13.085 18.906c-3.929 0-6.54-2.928-6.54-6.906 0-3.757 2.693-6.879 6.238-6.879 2.446 0 3.903.802 5.386 2.072L20.313 4.624C18.334 2.94 16.273 2 12.921 2 7.122 2 3 6.586 3 12c0 5.691 3.957 10 9.976 10 3.407 0 6.127-1.381 8.024-3.011V10.868h-8.189v2.956h4.919z"/><path fill="#00B4E5" fill-rule="evenodd" d="M21 11v8.025C19.053 20.635 16.259 22 12.76 22c-1.333 0-2.567-.198-3.683-.565l2.87-2.545c.3.035.608.053.925.053 1.863 0 3.556-.573 4.77-1.447V13.92h-.091L20.844 11H21z"/></svg>
+    </div>
+    <nav class="nav">
+      <div class="item" title="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+      <div class="item active" title="Dashboards"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
+      <div class="item" title="Community"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="item" title="Moderation Queue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="item" title="Surveys"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+      <div class="item" title="Reports"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-6"/></svg></div>
+    </nav>
+    <div class="item" title="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5 2 2 0 1 1-4 0 1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3 2 2 0 1 1-2.8-2.8 1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1 2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8 2 2 0 1 1 2.8-2.8 1.7 1.7 0 0 0 1.8.3 1.7 1.7 0 0 0 1-1.5 2 2 0 1 1 4 0 1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3 2 2 0 1 1 2.8 2.8 1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1 2 2 0 1 1 0 4z"/></svg></div>
+    <div class="avatar">AS</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="header">
+      <div class="crumbs">
+        <a href="#">Community</a><span class="sep">/</span>
+        <a href="#">Insights</a><span class="sep">/</span>
+        <span class="current">Sentiment</span>
+      </div>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input placeholder="Search for topics, members, or categories">
+      </div>
+      <div class="h-actions">
+        <div class="h-icon" title="Recent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 1"/></svg></div>
+        <div class="h-icon" title="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M14 21a2 2 0 0 1-4 0"/></svg><span class="badge"></span></div>
+        <div class="h-icon" title="Help"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg></div>
+      </div>
+    </header>
+
+    <main class="page">
+      <!-- Title row -->
+      <div class="page-title">
+        <div>
+          <h1>Community Sentiment</h1>
+          <p class="sub">EmailMonkey · Last 6 Months · Nov 20, 2025 – May 20, 2026 · 3,184 posts analyzed</p>
+        </div>
+        <div class="actions">
+          <button class="btn secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Last 6 Months
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <button class="btn secondary">Export</button>
+          <button class="btn primary">Share</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Topics</div>
+        <div class="tab">Members</div>
+        <div class="tab">Categories</div>
+        <div class="tab">Moderation Queue</div>
+      </div>
+
+      <!-- Method note -->
+      <div class="note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5"/></svg>
+        Sentiment scored by NLP classifier on post titles and bodies. Score range −1.00 (most negative) to +1.00 (most positive). Last refreshed May 22, 2026 04:33 UTC.
+      </div>
+
+      <!-- KPI ROW 1 — primary -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="lbl">Community Sentiment Index</div>
+          <div class="val">+0.28</div>
+          <div class="delta up">▲ 0.04 vs prior 6mo</div>
+          <div class="hint">Net average across all posts</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Promoter Share</div>
+          <div class="val">61.6%</div>
+          <div class="delta up">▲ 3.2 pts</div>
+          <div class="hint">Posts scored ≥ +0.30</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Detractor Share</div>
+          <div class="val">12.4%</div>
+          <div class="delta down">▲ 1.1 pts</div>
+          <div class="hint">Posts scored ≤ −0.30</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Unresolved Detractors</div>
+          <div class="val">7</div>
+          <div class="delta warn">▲ 2 this week</div>
+          <div class="hint">Negative posts with 0 staff replies</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">First Reply on Negatives</div>
+          <div class="val">14h</div>
+          <div class="delta up">▼ 3h vs prior</div>
+          <div class="hint">Median time from post to staff reply</div>
+        </div>
+      </div>
+
+      <!-- KPI ROW 2 — secondary (mini) -->
+      <div class="kpis-mini">
+        <div class="mini"><span class="lbl">Topics Created</span><span class="val">486</span><span class="delta up">▲ 12.4%</span></div>
+        <div class="mini"><span class="lbl">Replies Posted</span><span class="val">2,698</span><span class="delta up">▲ 18.1%</span></div>
+        <div class="mini"><span class="lbl">Active Members</span><span class="val">1,143</span><span class="delta up">▲ 6.0%</span></div>
+        <div class="mini"><span class="lbl">Likes Given</span><span class="val">3,572</span><span class="delta up">▲ 22.7%</span></div>
+        <div class="mini"><span class="lbl">Helpful Vote Rate</span><span class="val">0.0%</span><span class="delta down">No votes cast</span></div>
+      </div>
+
+      <!-- ROW: Sentiment trend + Distribution -->
+      <div class="row r-2-1">
+        <div class="card">
+          <div class="card-head">
+            <h3>Sentiment Trend</h3>
+            <div style="display:flex;gap:14px;align-items:center">
+              <div class="legend">
+                <span><span class="sw" style="background:var(--gs-fresh-green-60)"></span>Positive</span>
+                <span><span class="sw" style="background:var(--gs-rich-gray-40)"></span>Neutral</span>
+                <span><span class="sw" style="background:var(--gs-tart-red-50)"></span>Negative</span>
+              </div>
+              <div class="seg">
+                <button>Posts</button>
+                <button class="on">Score</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 720 260" preserveAspectRatio="none">
+              <!-- axes -->
+              <line x1="50" y1="20" x2="50" y2="220" class="axis"/>
+              <line x1="50" y1="220" x2="700" y2="220" class="axis"/>
+              <!-- zero line -->
+              <line x1="50" y1="130" x2="700" y2="130" class="axis" stroke-dasharray="3 3"/>
+              <!-- gridlines -->
+              <line x1="50" y1="80"  x2="700" y2="80"  class="grid"/>
+              <line x1="50" y1="180" x2="700" y2="180" class="grid"/>
+              <!-- y labels -->
+              <text x="44" y="34"  class="axis-label" text-anchor="end">+1.0</text>
+              <text x="44" y="84"  class="axis-label" text-anchor="end">+0.5</text>
+              <text x="44" y="134" class="axis-label" text-anchor="end">0.0</text>
+              <text x="44" y="184" class="axis-label" text-anchor="end">−0.5</text>
+              <text x="44" y="224" class="axis-label" text-anchor="end">−1.0</text>
+              <!-- x labels (6 months) -->
+              <text x="100" y="240" class="axis-label" text-anchor="middle">Dec 25</text>
+              <text x="208" y="240" class="axis-label" text-anchor="middle">Jan 26</text>
+              <text x="316" y="240" class="axis-label" text-anchor="middle">Feb 26</text>
+              <text x="424" y="240" class="axis-label" text-anchor="middle">Mar 26</text>
+              <text x="532" y="240" class="axis-label" text-anchor="middle">Apr 26</text>
+              <text x="640" y="240" class="axis-label" text-anchor="middle">May 26</text>
+
+              <!-- shaded area under line (positive portion) -->
+              <path d="M50,140 L100,118 L154,108 L208,112 L262,98 L316,92 L370,96 L424,84 L478,90 L532,76 L586,82 L640,72 L700,80 L700,130 L50,130 Z"
+                    fill="rgba(17,148,96,.12)" stroke="none"/>
+
+              <!-- main sentiment line -->
+              <path d="M50,140 L100,118 L154,108 L208,112 L262,98 L316,92 L370,96 L424,84 L478,90 L532,76 L586,82 L640,72 L700,80"
+                    stroke="#119460" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- negative dip markers (frustration spikes) -->
+              <circle cx="262" cy="98" r="3" fill="#119460"/>
+              <circle cx="424" cy="84" r="3" fill="#119460"/>
+              <circle cx="640" cy="72" r="3" fill="#119460"/>
+
+              <!-- secondary line: detractor volume (inverted, scaled) -->
+              <path d="M50,176 L100,182 L154,178 L208,170 L262,166 L316,172 L370,164 L424,160 L478,168 L532,158 L586,162 L640,166 L700,158"
+                    stroke="#dc3626" stroke-width="1.5" fill="none" stroke-dasharray="4 3" stroke-linecap="round"/>
+
+              <!-- annotation: April detractor spike -->
+              <g>
+                <circle cx="532" cy="158" r="4" fill="#dc3626"/>
+                <line x1="532" y1="158" x2="532" y2="190" stroke="#dc3626" stroke-width="1"/>
+                <rect x="488" y="190" width="90" height="26" rx="4" fill="#dc3626"/>
+                <text x="533" y="207" class="axis-label" fill="#fff" text-anchor="middle" font-weight="600">Apr detractor spike</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Sentiment Mix</h3><span class="h-meta">Last 6mo</span></div>
+          <div class="dist-list">
+            <div class="dist-row">
+              <span class="name">Total Posts</span>
+              <div class="stack">
+                <span class="s-pos" style="width:61.6%"></span>
+                <span class="s-neu" style="width:26%"></span>
+                <span class="s-neg" style="width:12.4%"></span>
+              </div>
+              <span class="num">3,184</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Questions</span>
+              <div class="stack">
+                <span class="s-pos" style="width:34%"></span>
+                <span class="s-neu" style="width:43%"></span>
+                <span class="s-neg" style="width:23%"></span>
+              </div>
+              <span class="num">748</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Discussions</span>
+              <div class="stack">
+                <span class="s-pos" style="width:58%"></span>
+                <span class="s-neu" style="width:30%"></span>
+                <span class="s-neg" style="width:12%"></span>
+              </div>
+              <span class="num">412</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Articles</span>
+              <div class="stack">
+                <span class="s-pos" style="width:78%"></span>
+                <span class="s-neu" style="width:21%"></span>
+                <span class="s-neg" style="width:1%"></span>
+              </div>
+              <span class="num">186</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Ideas</span>
+              <div class="stack">
+                <span class="s-pos" style="width:45%"></span>
+                <span class="s-neu" style="width:38%"></span>
+                <span class="s-neg" style="width:17%"></span>
+              </div>
+              <span class="num">94</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Replies</span>
+              <div class="stack">
+                <span class="s-pos" style="width:67%"></span>
+                <span class="s-neu" style="width:24%"></span>
+                <span class="s-neg" style="width:9%"></span>
+              </div>
+              <span class="num">2,698</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW: Categories + Action queue -->
+      <div class="row r-1-1">
+        <div class="card">
+          <div class="card-head"><h3>Sentiment by Category</h3><span class="h-meta">Top 8</span></div>
+          <div class="dist-list">
+            <div class="dist-row">
+              <span class="name">Customer Spotlights</span>
+              <div class="stack">
+                <span class="s-pos" style="width:88%"></span>
+                <span class="s-neu" style="width:11%"></span>
+                <span class="s-neg" style="width:1%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-fresh-green-70)">+0.62</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Getting Started</span>
+              <div class="stack">
+                <span class="s-pos" style="width:74%"></span>
+                <span class="s-neu" style="width:23%"></span>
+                <span class="s-neg" style="width:3%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-fresh-green-70)">+0.41</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Best Practices</span>
+              <div class="stack">
+                <span class="s-pos" style="width:62%"></span>
+                <span class="s-neu" style="width:33%"></span>
+                <span class="s-neg" style="width:5%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-fresh-green-70)">+0.33</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Banana Blast Campaigns</span>
+              <div class="stack">
+                <span class="s-pos" style="width:48%"></span>
+                <span class="s-neu" style="width:36%"></span>
+                <span class="s-neg" style="width:16%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-rich-gray-70)">+0.14</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Automation &amp; Integrations</span>
+              <div class="stack">
+                <span class="s-pos" style="width:41%"></span>
+                <span class="s-neu" style="width:42%"></span>
+                <span class="s-neg" style="width:17%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-rich-gray-70)">+0.08</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Product Releases</span>
+              <div class="stack">
+                <span class="s-pos" style="width:38%"></span>
+                <span class="s-neu" style="width:48%"></span>
+                <span class="s-neg" style="width:14%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-rich-gray-70)">+0.05</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Troubleshooting</span>
+              <div class="stack">
+                <span class="s-pos" style="width:22%"></span>
+                <span class="s-neu" style="width:38%"></span>
+                <span class="s-neg" style="width:40%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-tart-red-70)">−0.21</span>
+            </div>
+            <div class="dist-row">
+              <span class="name">Archive (Ideas)</span>
+              <div class="stack">
+                <span class="s-pos" style="width:18%"></span>
+                <span class="s-neu" style="width:34%"></span>
+                <span class="s-neg" style="width:48%"></span>
+              </div>
+              <span class="num" style="color:var(--gs-tart-red-70)">−0.29</span>
+            </div>
+          </div>
+          <div class="card-foot"><a href="#">View All 24 Categories →</a></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Action Queue · Detractors Needing Response</h3>
+            <span class="s-chip warn"><span class="dot"></span>7 Open</span>
+          </div>
+          <div class="queue">
+            <div class="q-item">
+              <div class="q-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">For Banana Blast, how to enable analytics</div>
+                <div class="m">community member · Troubleshooting · 11 views · 0 replies · 78 days open</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.50</span>
+                <span class="h7">High Priority</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Improve the CRM integration</div>
+                <div class="m">Austin · Archive (Idea) · −2 votes · 1 reply · Posted May 15</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.40</span>
+                <span class="h7">Downvoted</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon warn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Drip campaign keeps sending duplicates to same contact</div>
+                <div class="m">mjameson · Troubleshooting · 247 views · 4 replies</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.62</span>
+                <span class="h7">High Views</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Pricing change feels like a slap to long-time customers</div>
+                <div class="m">k_porter · Product Releases · 1,128 views · 47 replies</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.78</span>
+                <span class="h7">Critical</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon warn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Has anyone gotten Salesforce sync to work reliably?</div>
+                <div class="m">d_ortiz · Automation &amp; Integrations · 412 views · 8 replies</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.44</span>
+                <span class="h7">Trending</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Editor is unusably slow with 50k+ contacts</div>
+                <div class="m">renee_m · Troubleshooting · 89 views · 2 replies</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.55</span>
+                <span class="h7">Open 11d</span>
+              </div>
+            </div>
+            <div class="q-item">
+              <div class="q-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".5"/></svg>
+              </div>
+              <div class="q-body">
+                <div class="t">Charged twice this billing cycle, support ticket ignored</div>
+                <div class="m">b_chen · General · 22 views · 0 replies</div>
+              </div>
+              <div class="q-meta">
+                <span class="s-chip neg"><span class="dot"></span>−0.81</span>
+                <span class="h7">Escalate</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot"><a href="#">Open Moderation Queue →</a></div>
+        </div>
+      </div>
+
+      <!-- ROW: Top topics + Bottom topics -->
+      <div class="row r-1-1">
+        <div class="card">
+          <div class="card-head">
+            <h3>Highest Sentiment Topics</h3>
+            <span class="h-meta">By Score · Replies-Weighted</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Category</th>
+                <th>Engagement</th>
+                <th>Sentiment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="t">Customer Spotlight: How One Austin Salon Scaled Booking by 2.5×<div class="meta">demomonkey · Nov 26, 2025</div></td>
+                <td>Customer Spotlights</td>
+                <td class="num">11 views · 0 replies</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.55</span></td>
+              </tr>
+              <tr>
+                <td class="t">EmailMonkey saved my Black Friday — thank you team<div class="meta">jen_marketer · Dec 02, 2025</div></td>
+                <td>Customer Spotlights</td>
+                <td class="num">412 views · 23 replies · 18 likes</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.91</span></td>
+              </tr>
+              <tr>
+                <td class="t">A/B testing finally clicked for me — sharing my workflow<div class="meta">paul_h · Mar 14, 2026</div></td>
+                <td>Best Practices</td>
+                <td class="num">298 views · 14 replies · 22 likes</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.83</span></td>
+              </tr>
+              <tr>
+                <td class="t">Why EmailMonkey<div class="meta">demo content · May 5, 2026</div></td>
+                <td>Community Features</td>
+                <td class="num">0 views · 0 replies</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.40</span></td>
+              </tr>
+              <tr>
+                <td class="t">Signal-Driven Adaptive Campaigns (idea)<div class="meta">Anon · Mar 9, 2026</div></td>
+                <td>Banana Blast Ideas</td>
+                <td class="num">7 views · 1 reply · +2 votes</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.30</span></td>
+              </tr>
+              <tr>
+                <td class="t">Best Practices for "Peel-Back" Re-engagement Emails<div class="meta">Digital Hub Admin · Jan 29, 2026</div></td>
+                <td>Banana Blast Campaigns</td>
+                <td class="num">2 views · 0 replies</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.25</span></td>
+              </tr>
+              <tr>
+                <td class="t">Setting Up Automated Email Workflows<div class="meta">Alex · May 13, 2026</div></td>
+                <td>Automation</td>
+                <td class="num">2 views · 0 replies</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.25</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card-foot"><a href="#">View All Positive Topics →</a></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Lowest Sentiment Topics</h3>
+            <span class="h-meta">By Score · Views-Weighted</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Category</th>
+                <th>Engagement</th>
+                <th>Sentiment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="t">Pricing change feels like a slap to long-time customers<div class="meta">k_porter · Apr 18, 2026</div></td>
+                <td>Product Releases</td>
+                <td class="num">1,128 views · 47 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.78</span></td>
+              </tr>
+              <tr>
+                <td class="t">Drip campaign keeps sending duplicates to same contact<div class="meta">mjameson · Apr 22, 2026</div></td>
+                <td>Troubleshooting</td>
+                <td class="num">247 views · 4 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.62</span></td>
+              </tr>
+              <tr>
+                <td class="t">Editor is unusably slow with 50k+ contacts<div class="meta">renee_m · May 9, 2026</div></td>
+                <td>Troubleshooting</td>
+                <td class="num">89 views · 2 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.55</span></td>
+              </tr>
+              <tr>
+                <td class="t">For Banana Blast, how to enable analytics<div class="meta">community member · Mar 5, 2026</div></td>
+                <td>Troubleshooting</td>
+                <td class="num">11 views · 0 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.50</span></td>
+              </tr>
+              <tr>
+                <td class="t">Has anyone gotten Salesforce sync to work reliably?<div class="meta">d_ortiz · Apr 02, 2026</div></td>
+                <td>Automation &amp; Integrations</td>
+                <td class="num">412 views · 8 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.44</span></td>
+              </tr>
+              <tr>
+                <td class="t">Improve the CRM integration<div class="meta">Austin · May 15, 2026</div></td>
+                <td>Archive (Idea)</td>
+                <td class="num">2 views · 1 reply · −2 votes</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.40</span></td>
+              </tr>
+              <tr>
+                <td class="t">Onboarding email never arrived for half my testers<div class="meta">t_lee · Feb 11, 2026</div></td>
+                <td>Troubleshooting</td>
+                <td class="num">68 views · 3 replies</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.37</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card-foot"><a href="#">View All Negative Topics →</a></div>
+        </div>
+      </div>
+
+      <!-- ROW: Top members + Bottom members -->
+      <div class="row r-1-1">
+        <div class="card">
+          <div class="card-head">
+            <h3>Champion Members</h3>
+            <span class="h-meta">Positive Sentiment · Engagement</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Posts</th>
+                <th>Likes Recv.</th>
+                <th>Likes Given</th>
+                <th>Sentiment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-royal-blue-70)">DG</span>
+                    <div><div class="nm">dgreeneAdmin</div><div class="role">Administrator · Abbett</div></div>
+                  </div>
+                </td>
+                <td class="num">9</td>
+                <td class="num">17</td>
+                <td class="num">11</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.62</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-pacific-blue-50)">SE</span>
+                    <div><div class="nm">Sean</div><div class="role">Registered · Mandrill Motivator</div></div>
+                  </div>
+                </td>
+                <td class="num">23</td>
+                <td class="num">8</td>
+                <td class="num">34</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.58</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-lavender-purple-70)">RO</span>
+                    <div><div class="nm">Roger</div><div class="role">Registered · Chattering Capuchin</div></div>
+                  </div>
+                </td>
+                <td class="num">19</td>
+                <td class="num">6</td>
+                <td class="num">23</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.51</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-fresh-green-60)">AL</span>
+                    <div><div class="nm">Alex</div><div class="role">Administrator · Tribe Manager</div></div>
+                  </div>
+                </td>
+                <td class="num">18</td>
+                <td class="num">5</td>
+                <td class="num">15</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.48</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-pumpkin-orange-60)">DM</span>
+                    <div><div class="nm">demomonkey</div><div class="role">Administrator · Tribe Manager</div></div>
+                  </div>
+                </td>
+                <td class="num">14</td>
+                <td class="num">9</td>
+                <td class="num">8</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.45</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-rose-pink-60)">JE</span>
+                    <div><div class="nm">jen_marketer</div><div class="role">Registered · Banana Blast Campaign</div></div>
+                  </div>
+                </td>
+                <td class="num">8</td>
+                <td class="num">22</td>
+                <td class="num">14</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.71</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-sea-green-60)">PM</span>
+                    <div><div class="nm">proman</div><div class="role">Community Manager · Abbett</div></div>
+                  </div>
+                </td>
+                <td class="num">14</td>
+                <td class="num">4</td>
+                <td class="num">12</td>
+                <td><span class="s-chip pos"><span class="dot"></span>+0.39</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card-foot"><a href="#">Open Champions Report →</a></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>At-Risk Voices</h3>
+            <span class="h-meta">Negative Sentiment · CSM Outreach Recommended</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Posts</th>
+                <th>Last Active</th>
+                <th>Company</th>
+                <th>Sentiment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-tart-red-50)">KP</span>
+                    <div><div class="nm">k_porter</div><div class="role">Registered · 3 yr tenure</div></div>
+                  </div>
+                </td>
+                <td class="num">12</td>
+                <td>Apr 18, 2026</td>
+                <td>Globex (Enterprise)</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.71</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-honey-yellow-80)">MJ</span>
+                    <div><div class="nm">mjameson</div><div class="role">Registered · Banana Newbie</div></div>
+                  </div>
+                </td>
+                <td class="num">5</td>
+                <td>Apr 22, 2026</td>
+                <td>Steeplejack Co.</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.58</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-rich-gray-60)">BC</span>
+                    <div><div class="nm">b_chen</div><div class="role">Registered · New (14d)</div></div>
+                  </div>
+                </td>
+                <td class="num">2</td>
+                <td>May 11, 2026</td>
+                <td>—</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.65</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-jet-gray-60)">CM</span>
+                    <div><div class="nm">community member</div><div class="role">Default · Anonymous</div></div>
+                  </div>
+                </td>
+                <td class="num">2</td>
+                <td>Mar 5, 2026</td>
+                <td>—</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.23</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-pumpkin-orange-60)">AU</span>
+                    <div><div class="nm">Austin</div><div class="role">Registered · Tribe Manager</div></div>
+                  </div>
+                </td>
+                <td class="num">1</td>
+                <td>May 15, 2026</td>
+                <td>—</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.40</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-bronze-brown-60)">DO</span>
+                    <div><div class="nm">d_ortiz</div><div class="role">Registered · 2 yr tenure</div></div>
+                  </div>
+                </td>
+                <td class="num">7</td>
+                <td>Apr 02, 2026</td>
+                <td>Initech</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.34</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="av" style="background:var(--gs-yellow-green-60)">RM</span>
+                    <div><div class="nm">renee_m</div><div class="role">Registered · Tribe Manager</div></div>
+                  </div>
+                </td>
+                <td class="num">4</td>
+                <td>May 9, 2026</td>
+                <td>Hooli</td>
+                <td><span class="s-chip neg"><span class="dot"></span>−0.28</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card-foot"><a href="#">Open At-Risk Cohort →</a></div>
+        </div>
+      </div>
+
+      <!-- ROW: Activity heatmap-style + Watchouts -->
+      <div class="row r-2-1">
+        <div class="card">
+          <div class="card-head">
+            <h3>Sentiment Volume by Week</h3>
+            <div class="legend">
+              <span><span class="sw" style="background:var(--gs-fresh-green-60)"></span>Promoters</span>
+              <span><span class="sw" style="background:var(--gs-rich-gray-40)"></span>Neutral</span>
+              <span><span class="sw" style="background:var(--gs-tart-red-50)"></span>Detractors</span>
+            </div>
+          </div>
+          <div class="chart" style="height:220px">
+            <svg viewBox="0 0 720 200" preserveAspectRatio="none">
+              <line x1="40" y1="20" x2="40" y2="170" class="axis"/>
+              <line x1="40" y1="170" x2="700" y2="170" class="axis"/>
+              <text x="34" y="28" class="axis-label" text-anchor="end">200</text>
+              <text x="34" y="78" class="axis-label" text-anchor="end">150</text>
+              <text x="34" y="128" class="axis-label" text-anchor="end">100</text>
+              <text x="34" y="170" class="axis-label" text-anchor="end">0</text>
+<!-- 26 weekly stacked bars -->
+              <!-- Each group: detractor bottom, neutral middle, promoter top.
+                   x base = 50 + i*24, width = 18 -->
+              <g>
+                <!-- W1 Nov 24 -->
+                <rect x="50" y="106" width="18" height="64" fill="#119460" rx="2"/>
+                <rect x="50" y="138" width="18" height="22" fill="#acb4bd"/>
+                <rect x="50" y="160" width="18" height="10" fill="#f75d4f"/>
+              </g>
+              <g><rect x="74" y="98" width="18" height="72" fill="#119460" rx="2"/><rect x="74" y="132" width="18" height="22" fill="#acb4bd"/><rect x="74" y="154" width="18" height="16" fill="#f75d4f"/></g>
+              <g><rect x="98" y="90" width="18" height="80" fill="#119460" rx="2"/><rect x="98" y="130" width="18" height="22" fill="#acb4bd"/><rect x="98" y="152" width="18" height="18" fill="#f75d4f"/></g>
+              <g><rect x="122" y="84" width="18" height="86" fill="#119460" rx="2"/><rect x="122" y="124" width="18" height="22" fill="#acb4bd"/><rect x="122" y="146" width="18" height="24" fill="#f75d4f"/></g>
+              <g><rect x="146" y="80" width="18" height="90" fill="#119460" rx="2"/><rect x="146" y="120" width="18" height="22" fill="#acb4bd"/><rect x="146" y="142" width="18" height="28" fill="#f75d4f"/></g>
+              <g><rect x="170" y="82" width="18" height="88" fill="#119460" rx="2"/><rect x="170" y="122" width="18" height="22" fill="#acb4bd"/><rect x="170" y="144" width="18" height="26" fill="#f75d4f"/></g>
+              <g><rect x="194" y="76" width="18" height="94" fill="#119460" rx="2"/><rect x="194" y="116" width="18" height="22" fill="#acb4bd"/><rect x="194" y="138" width="18" height="32" fill="#f75d4f"/></g>
+              <g><rect x="218" y="72" width="18" height="98" fill="#119460" rx="2"/><rect x="218" y="112" width="18" height="24" fill="#acb4bd"/><rect x="218" y="136" width="18" height="34" fill="#f75d4f"/></g>
+              <g><rect x="242" y="70" width="18" height="100" fill="#119460" rx="2"/><rect x="242" y="112" width="18" height="22" fill="#acb4bd"/><rect x="242" y="134" width="18" height="36" fill="#f75d4f"/></g>
+              <g><rect x="266" y="68" width="18" height="102" fill="#119460" rx="2"/><rect x="266" y="108" width="18" height="26" fill="#acb4bd"/><rect x="266" y="134" width="18" height="36" fill="#f75d4f"/></g>
+              <g><rect x="290" y="64" width="18" height="106" fill="#119460" rx="2"/><rect x="290" y="104" width="18" height="26" fill="#acb4bd"/><rect x="290" y="130" width="18" height="40" fill="#f75d4f"/></g>
+              <g><rect x="314" y="62" width="18" height="108" fill="#119460" rx="2"/><rect x="314" y="102" width="18" height="28" fill="#acb4bd"/><rect x="314" y="130" width="18" height="40" fill="#f75d4f"/></g>
+              <g><rect x="338" y="60" width="18" height="110" fill="#119460" rx="2"/><rect x="338" y="100" width="18" height="28" fill="#acb4bd"/><rect x="338" y="128" width="18" height="42" fill="#f75d4f"/></g>
+              <g><rect x="362" y="56" width="18" height="114" fill="#119460" rx="2"/><rect x="362" y="98" width="18" height="28" fill="#acb4bd"/><rect x="362" y="126" width="18" height="44" fill="#f75d4f"/></g>
+              <g><rect x="386" y="54" width="18" height="116" fill="#119460" rx="2"/><rect x="386" y="96" width="18" height="30" fill="#acb4bd"/><rect x="386" y="126" width="18" height="44" fill="#f75d4f"/></g>
+              <g><rect x="410" y="52" width="18" height="118" fill="#119460" rx="2"/><rect x="410" y="94" width="18" height="32" fill="#acb4bd"/><rect x="410" y="126" width="18" height="44" fill="#f75d4f"/></g>
+              <g><rect x="434" y="48" width="18" height="122" fill="#119460" rx="2"/><rect x="434" y="92" width="18" height="30" fill="#acb4bd"/><rect x="434" y="122" width="18" height="48" fill="#f75d4f"/></g>
+              <g><rect x="458" y="46" width="18" height="124" fill="#119460" rx="2"/><rect x="458" y="90" width="18" height="30" fill="#acb4bd"/><rect x="458" y="120" width="18" height="50" fill="#f75d4f"/></g>
+              <g><rect x="482" y="44" width="18" height="126" fill="#119460" rx="2"/><rect x="482" y="86" width="18" height="34" fill="#acb4bd"/><rect x="482" y="120" width="18" height="50" fill="#f75d4f"/></g>
+              <g><rect x="506" y="42" width="18" height="128" fill="#119460" rx="2"/><rect x="506" y="84" width="18" height="34" fill="#acb4bd"/><rect x="506" y="118" width="18" height="52" fill="#f75d4f"/></g>
+              <!-- Apr spike (week 21-22) -->
+              <g><rect x="530" y="40" width="18" height="130" fill="#119460" rx="2"/><rect x="530" y="78" width="18" height="38" fill="#acb4bd"/><rect x="530" y="110" width="18" height="60" fill="#f75d4f"/></g>
+              <g><rect x="554" y="36" width="18" height="134" fill="#119460" rx="2"/><rect x="554" y="74" width="18" height="38" fill="#acb4bd"/><rect x="554" y="102" width="18" height="68" fill="#f75d4f"/></g>
+              <g><rect x="578" y="40" width="18" height="130" fill="#119460" rx="2"/><rect x="578" y="80" width="18" height="36" fill="#acb4bd"/><rect x="578" y="108" width="18" height="62" fill="#f75d4f"/></g>
+              <g><rect x="602" y="38" width="18" height="132" fill="#119460" rx="2"/><rect x="602" y="78" width="18" height="36" fill="#acb4bd"/><rect x="602" y="112" width="18" height="58" fill="#f75d4f"/></g>
+              <g><rect x="626" y="34" width="18" height="136" fill="#119460" rx="2"/><rect x="626" y="74" width="18" height="38" fill="#acb4bd"/><rect x="626" y="114" width="18" height="56" fill="#f75d4f"/></g>
+              <g><rect x="650" y="32" width="18" height="138" fill="#119460" rx="2"/><rect x="650" y="70" width="18" height="40" fill="#acb4bd"/><rect x="650" y="112" width="18" height="58" fill="#f75d4f"/></g>
+
+              <text x="60" y="190" class="axis-label" text-anchor="middle">W48</text>
+              <text x="180" y="190" class="axis-label" text-anchor="middle">W52</text>
+              <text x="300" y="190" class="axis-label" text-anchor="middle">W04</text>
+              <text x="420" y="190" class="axis-label" text-anchor="middle">W11</text>
+              <text x="540" y="190" class="axis-label" text-anchor="middle">W17</text>
+              <text x="660" y="190" class="axis-label" text-anchor="middle">W20</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Watchouts</h3><span class="h-meta">This Week</span></div>
+          <div style="padding:14px 18px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div class="q-icon" style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gs-tart-red-10);color:var(--gs-tart-red-70);flex-shrink:0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 4v10"/><path d="m4.93 4.93 4.24 4.24m5.66 5.66 4.24 4.24"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--gs-rich-gray-90);margin-bottom:2px">Troubleshooting category trending negative</div>
+                <div style="font-size:12px;color:var(--gs-rich-gray-60);line-height:1.45">40% of Troubleshooting posts in May are detractors. Up from 28% in April. Pattern: drip-campaign + Salesforce sync.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div class="q-icon warn" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M21 4v6h-6"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--gs-rich-gray-90);margin-bottom:2px">Pricing-change thread still active 35 days in</div>
+                <div style="font-size:12px;color:var(--gs-rich-gray-60);line-height:1.45">k_porter's post (1,128 views, 47 replies, −0.78) keeps attracting detractor replies. Consider Director-level response.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div class="q-icon" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gs-pacific-blue-10);color:var(--gs-pacific-blue-70)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--gs-rich-gray-90);margin-bottom:2px">Zero helpfulness votes cast in 6 months</div>
+                <div style="font-size:12px;color:var(--gs-rich-gray-60);line-height:1.45">Helpful-vote feature appears unused or unsurfaced. Investigate UI placement — this is your strongest passive signal.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div class="q-icon" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gs-fresh-green-10);color:var(--gs-fresh-green-70)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--gs-rich-gray-90);margin-bottom:2px">First-reply SLA on negatives improved 3h</div>
+                <div style="font-size:12px;color:var(--gs-rich-gray-60);line-height:1.45">Median dropped from 17h to 14h vs. prior 6 months. Promoter share grew in parallel. Maintain staffing through Q3.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:8px 0;color:var(--gs-rich-gray-50);font-size:11px;text-align:right">
+        EmailMonkey Community · Data as of May 22, 2026 · Branded with Gainsight Horizon Design System v3.1
+      </div>
+    </main>
+  </div>
+</body>
+</html>
